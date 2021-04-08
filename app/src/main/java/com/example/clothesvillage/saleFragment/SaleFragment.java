@@ -1,4 +1,4 @@
-package com.example.clothesvillage.notifications;
+package com.example.clothesvillage.saleFragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,14 +11,14 @@ import androidx.fragment.app.Fragment;
 
 import com.example.clothesvillage.R;
 
-public class NotificationsFragment extends Fragment {
+public class SaleFragment extends Fragment {
 
     private View view;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_notifications, container, false);
+        view = inflater.inflate(R.layout.fragment_sale, container, false);
 
         return view;
     }

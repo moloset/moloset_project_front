@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "21676001453",
+    "firebase_url": "https://moloset-7644e-default-rtdb.firebaseio.com",
+    "project_id": "moloset-7644e",
+    "storage_bucket": "moloset-7644e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21676001453:android:907888f4eec19109359e24",
+        "android_client_info": {
+          "package_name": "com.example.clothesvillage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21676001453-6gma00gp65qrbha15ll854668jilrjpk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEtzFxOKO509_rozYkMWz30yPhmG9KHq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21676001453-6gma00gp65qrbha15ll854668jilrjpk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

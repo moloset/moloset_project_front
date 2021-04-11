@@ -15,9 +15,9 @@
 
         <ImageView
             android:id="@+id/imageview_weather_picture"
-            android:layout_width="202dp"
-            android:layout_height="181dp"
-            app:srcCompat="@drawable/common_google_signin_btn_text_light_normal" />
+            android:layout_width="match_parent"
+            android:layout_height="176dp"
+            app:srcCompat="@drawable/ws1" />
 
         <TextView
             android:id="@+id/textview_weather_temperature"

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.clothesvillage.LoginActivity;
 import com.example.clothesvillage.R;
 import com.example.clothesvillage.SignUpActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +41,7 @@ public class MypageFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startSignUpActivity() {
-        Intent intent = new Intent(getActivity(), SignUpActivity.class);
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
         startActivity(intent);
     }
 

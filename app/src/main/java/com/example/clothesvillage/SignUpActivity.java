@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = "SignUpActivity";
+    //static final String[] list_year = {"LIST1", "LIST2", "LIST3"} ;
     private FirebaseAuth mAuth;
 
     @Override

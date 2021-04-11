@@ -1,5 +1,6 @@
 package com.example.clothesvillage.home;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -70,10 +71,20 @@ public class HomeFragment extends Fragment {
 
         WData data = new WData();
         String weather_state = "";
+        ProgressDialog progressDialog = new ProgressDialog(getActivity());
 
         public WeatherAsynTask() {
             //
         }
+
+        @Override
+        protected void onPreExecute() {
+            //super.onPreExecute();
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage("날씨를 로딩중입니다");
+            progressDialog.show();
+        }
+
         @Override
         protected String doInBackground(String... params) {
 
@@ -118,6 +129,7 @@ public class HomeFragment extends Fragment {
             weather_highlowtemp_tv.setText(data.getHigh_low_temp());
             weather_temperature_tv.setText(data.getTemperature());
             setWeather(weather_state);
+            progressDialog.dismiss();
         }
 
         public void setWeather(String w_state) {

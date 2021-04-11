@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if(FirebaseAuth.getInstance().getCurrentUser() == null){
-            startSignUpActivity();
+            startLoginActivity();
         }
         bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
         setFrag(0); //first display
     }
 
-    private void startSignUpActivity() {
-        Intent intent = new Intent(this, SignUpActivity.class);
+    private void startLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 

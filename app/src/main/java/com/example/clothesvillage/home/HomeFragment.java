@@ -35,6 +35,7 @@ public class HomeFragment extends Fragment {
     TextView weather_content_tv;
     TextView weather_highlowtemp_tv;
     TextView weather_temperature_tv;
+    TextView recommend_style_tv;
     ImageView weather_picture;
 
     @Nullable
@@ -45,8 +46,8 @@ public class HomeFragment extends Fragment {
         weather_content_tv = (TextView)view.findViewById(R.id.textview_weather_content);
         weather_highlowtemp_tv = (TextView)view.findViewById(R.id.textview_weather_highlowtemp);
         weather_temperature_tv = (TextView)view.findViewById(R.id.textview_weather_temperature);
+        recommend_style_tv = (TextView) view.findViewById(R.id.textview_recomand_style);
         weather_picture = (ImageView)view.findViewById(R.id.imageview_weather_picture);
-        weather_picture.setBackgroundColor(Color.parseColor("#F0F0F0"));
 
         return view;
     }
@@ -92,6 +93,7 @@ public class HomeFragment extends Fragment {
                     E1 = "p[class=info_temperature]";
                     Elements e2 = document.select(E1);
                     data.setTemperature(e2.text().substring(0, 2) + "℃");
+                    recommend_style(Integer.parseInt(e2.text().substring(0, 2)));
 
                     E1 = "span[class=merge]";
                     Elements e3 = document.select(E1);
@@ -243,6 +245,25 @@ public class HomeFragment extends Fragment {
                 case "ico_state ws41": //황사(밤)
                     weather_picture.setImageResource(R.drawable.ws20_41);
                     break;
+            }
+        }
+        public void recommend_style(int temperature) {
+            if(temperature < -5) {
+                recommend_style_tv.setText("두꺼운 코트, 롱패딩, 모자, 귀마개");
+            } else if(temperature < 9) {
+                recommend_style_tv.setText("가벼운 코트, 라이더 자켓");
+            } else if(temperature < 11) {
+                recommend_style_tv.setText("트렌치 코트, 면자켓");
+            } else if(temperature < 16) {
+                recommend_style_tv.setText("자켓, 셔츠, 가디건, 치마");
+            } else if(temperature < 19) {
+                recommend_style_tv.setText("니트, 가디건, 후드티, 맨투맨, 청바지, 면바지");
+            } else if(temperature < 22) {
+               recommend_style_tv.setText("긴팔, 가디건, 면바지, 슬랙스");
+            } else if(temperature < 26) {
+                recommend_style_tv.setText("반팔, 얇은 셔츠, 반바지");
+            } else {
+                recommend_style_tv.setText("민소매, 반바지, 원피스");
             }
         }
     }

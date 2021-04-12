@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment {
 
     private ArrayList<WData> mDataset = new ArrayList<WData>();
     private Context mContext;
-    private WData Data;
+    //private WData data;
 
     TextView weather_content_tv;
     TextView weather_highlowtemp_tv;

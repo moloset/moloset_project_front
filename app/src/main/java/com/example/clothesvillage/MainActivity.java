@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -16,6 +17,8 @@ import com.example.clothesvillage.notifications.NotificationsFragment;
 import com.example.clothesvillage.saleFragment.SaleFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,8 +36,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
             startLoginActivity();
+        } else {
+            if (user != null) {
+                for (UserInfo profile : user.getProviderData()) {
+                    // Id of the provider (ex: google.com)
+                    String providerId = profile.getProviderId();
+
+                    // UID specific to the provider
+                    String uid = profile.getUid();
+
+                    // Name, email address, and profile photo Url
+                    String name = profile.getDisplayName();
+                    String email = profile.getEmail();
+                    Uri photoUrl = profile.getPhotoUrl();
+                }
+            }
         }
         bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

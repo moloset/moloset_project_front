@@ -1,155 +1,466 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="left"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Button
-        android:id="@+id/btn_goto_login"
-        android:layout_width="37dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_marginLeft="3dp"
-        android:text="◁"
-        app:backgroundTint="#A63636" />
-
-    <TextView
-        android:id="@+id/textView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:gravity="center"
-        android:text="회원가입"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="10dp">
-
-        <EditText
-            android:id="@+id/edit_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:ems="10"
-            android:hint="e-mail"
-            android:inputType="textEmailAddress" />
-
-        <EditText
-            android:id="@+id/edit_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:ems="10"
-            android:hint="password"
-            android:inputType="textPassword" />
-
-        <EditText
-            android:id="@+id/edit_password_check"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:ems="10"
-            android:hint="password check"
-            android:inputType="textPassword" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/textview_nickname"
-            android:layout_width="270dp"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="닉네임을 입력하세요"
-            android:inputType="textPersonName" />
-
-        <Button
-            android:id="@+id/btn_namecheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:text="중복확인" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center|top"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textview_birth"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:gravity="center|left|center_vertical"
-            android:text="BIRTH"
-            android:textColor="@color/black"
-            android:textSize="20dp" />
+            android:layout_height="0dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbar">
 
-        <Button
-            android:id="@+id/btn_birth"
-            style="?android:spinnerStyle"
-            android:layout_width="371dp"
-            android:layout_height="58dp"
-            android:onClick="openDatePicker"
-            android:textColor="@color/black"
-            android:textSize="18dp" />
 
-        <TextView
-            android:id="@+id/textview_gender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
-            android:text="gender"
-            android:textColor="#000000"
-            android:textSize="20dp" />
-
-        <RadioGroup
-            android:id="@+id/radio_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radio_woman"
-                android:layout_width="70dp"
+            <Button
+                android:id="@+id/btn_namecheck"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="80dp"
-                android:layout_marginRight="80dp"
-                android:text="여쟈" />
+                android:text="중복확인"
+                android:fontFamily="@font/fontstyle3"
+                app:layout_constraintBottom_toBottomOf="@+id/edit_id"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/edit_id"
+                app:layout_constraintTop_toTopOf="@+id/edit_id" />
 
-            <RadioButton
-                android:id="@+id/radio_man"
-                android:layout_width="70dp"
+            <Button
+                android:id="@+id/btn_nickcheck"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="남자" />
-        </RadioGroup>
+                android:text="중복확인"
+                android:fontFamily="@font/fontstyle3"
+                app:layout_constraintBottom_toBottomOf="@+id/edit_nickname"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/edit_nickname"
+                app:layout_constraintTop_toTopOf="@+id/edit_nickname" />
+
+            <Button
+                android:id="@+id/btn_birth"
+                style="?android:spinnerStyle"
+                android:layout_width="0dp"
+                android:layout_height="58dp"
+                android:fontFamily="@font/fontstyle3"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/tv_id_birth"
+                app:layout_constraintTop_toBottomOf="@id/tv_id_birth" />
+
+            <EditText
+                android:id="@+id/edit_id"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8sp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/selector_edit"
+                android:fontFamily="@font/fontstyle3"
+                android:hint="EMAIL"
+                android:inputType="textEmailAddress"
+                android:paddingStart="15dp"
+                android:textColor="#252525"
+                android:textSize="13dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/btn_namecheck"
+                app:layout_constraintStart_toStartOf="@+id/tv_id_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_id_title" />
 
 
-        <Button
-            android:id="@+id/btn_signup"
-            android:layout_width="400dp"
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8sp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/selector_edit"
+                android:fontFamily="@font/fontstyle3"
+                android:hint="PASSWORD"
+                android:inputType="textPassword"
+                android:paddingStart="15dp"
+                android:textColor="#252525"
+                android:textSize="13dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/tv_password_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_password_title" />
+
+
+            <EditText
+                android:id="@+id/edit_password_confirm"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8sp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/selector_edit"
+                android:fontFamily="@font/fontstyle3"
+                android:hint="PASSWORD 확인"
+                android:inputType="textPassword"
+                android:paddingStart="15dp"
+                android:textColor="#252525"
+                android:textSize="13dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/edit_password"
+                app:layout_constraintTop_toBottomOf="@id/edit_password" />
+
+
+            <EditText
+                android:id="@+id/edit_nickname"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8sp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/selector_edit"
+                android:fontFamily="@font/fontstyle3"
+                android:hint="아이디"
+                android:inputType="textEmailAddress"
+                android:paddingStart="15dp"
+                android:textColor="#252525"
+                android:textSize="13dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/btn_nickcheck"
+                app:layout_constraintStart_toStartOf="@+id/tv_id_nick"
+                app:layout_constraintTop_toBottomOf="@id/tv_id_nick" />
+
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal"
+                android:checkedButton="@id/radio_man"
+                app:layout_constraintStart_toStartOf="@+id/tv_gender"
+                app:layout_constraintTop_toBottomOf="@id/tv_gender">
+
+                <RadioButton
+                    android:id="@+id/radio_man"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/fontstyle3"
+                    android:text="남자" />
+
+                <RadioButton
+                    android:id="@+id/radio_woman"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/fontstyle3"
+                    android:text="여자" />
+
+            </RadioGroup>
+
+            <LinearLayout
+                app:layout_constraintTop_toBottomOf="@+id/radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_height_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:fontFamily="@font/fontstyle3"
+                        android:text="키"
+                        android:textColor="#252525"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <EditText
+                        android:id="@+id/edit_height"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="15dp"
+                        android:background="@drawable/selector_edit"
+                        android:fontFamily="@font/fontstyle3"
+                        android:hint="키"
+                        android:inputType="numberDecimal"
+                        android:paddingStart="35dp"
+                        android:paddingEnd="35dp"
+                        android:textColor="#252525"
+                        android:textSize="13dp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_height_title"
+                        app:layout_constraintStart_toEndOf="@+id/tv_height_title"
+                        app:layout_constraintTop_toTopOf="@+id/tv_height_title" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="20dp"
+                        android:fontFamily="@font/fontstyle3"
+                        android:text="CM"
+                        android:textColor="#252525"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        app:layout_constraintStart_toEndOf="@id/edit_height"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_weight_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:fontFamily="@font/fontstyle3"
+                        android:text="몸무게"
+                        android:textColor="#252525"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <EditText
+                        android:id="@+id/edit_weight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="15dp"
+                        android:background="@drawable/selector_edit"
+                        android:fontFamily="@font/fontstyle3"
+                        android:hint="몸무게"
+                        android:inputType="numberDecimal"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:textColor="#252525"
+                        android:textSize="13dp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_weight_title"
+                        app:layout_constraintStart_toEndOf="@+id/tv_weight_title"
+                        app:layout_constraintTop_toTopOf="@+id/tv_weight_title" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="20dp"
+                        android:fontFamily="@font/fontstyle3"
+                        android:text="KG"
+                        android:textColor="#252525"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        app:layout_constraintStart_toEndOf="@id/edit_weight"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_id_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/fontstyle3"
+                android:text="이메일"
+                android:textColor="#252525"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/tv_error_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="*이미 존재하는 이메일 입니다. 다시 입력해주세요."
+                android:textColor="@color/main"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edit_id" />
+
+            <TextView
+                android:id="@+id/tv_password_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/fontstyle3"
+                android:text="비밀번호"
+                android:textColor="#252525"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edit_id" />
+
+            <TextView
+                android:id="@+id/tv_error_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="*비밀번호를 확인해주세요."
+                android:textColor="@color/main"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edit_password_confirm" />
+
+
+            <TextView
+                android:id="@+id/tv_id_nick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/fontstyle3"
+                android:text="닉네임"
+                android:textColor="#252525"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edit_password_confirm" />
+
+            <TextView
+                android:id="@+id/tv_error_nick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="*이미 존재하는 닉에임 입니다. 다시 입력해주세요."
+                android:textColor="@color/main"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edit_nickname" />
+
+
+            <TextView
+                android:id="@+id/tv_id_birth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/fontstyle3"
+                android:text="생일"
+                android:textColor="#252525"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edit_nickname" />
+
+
+            <TextView
+                android:id="@+id/tv_gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/fontstyle3"
+                android:text="성별"
+                android:textColor="#252525"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_birth" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="회원가입" />
-    </LinearLayout>
+            android:background="@color/white"
+            app:layout_constraintTop_toTopOf="parent">
 
-</LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivBack"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="15dp"
+                    android:foreground="?android:selectableItemBackground"
+                    android:src="@drawable/ic_baseline_arrow_back_ios_new_24"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvComplte"
+                    style="@style/AndH2SerifBoldLeft24Gray1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/fontstyle3"
+                    android:padding="5dp"
+                    android:text="완료"
+                    android:textColor="#F15F5F"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.789" />
+
+                <com.example.clothesvillage.utils.BottomLineTextView
+                    android:id="@+id/tvTitle"
+                    style="@style/AndH2SerifBoldLeft24Gray1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/fontstyle3"
+                    android:paddingBottom="10dp"
+                    android:text="회원 가입"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:underlineColor="#F15F5F"
+                    app:underlineWidth="10dp" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <data>
+
+
+    </data>
+
+</layout>

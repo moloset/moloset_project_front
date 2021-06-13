@@ -1,29 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.clothesvillage">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:name=".App"
+        android:allowBackup="false"
+        android:icon="@mipmap/main_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+
         android:theme="@style/Theme.ClothesVILLAGE">
-        <activity android:name=".MainActivity">
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_api_key" />
+
+
+        <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity"/>
         <activity android:name=".LoginActivity">
         </activity>
         <activity android:name=".SignUpActivity">
         </activity>
+
+        <activity android:name=".closet.ClosetRegisterActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".dashboard.cody.CodyRegisterActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".dashboard.cody.CodyContentRegisterActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.TradeRegisterActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.TradeRegisterDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.TradeMapActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.FilterActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".home.WeatherDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".mypage.MyTradeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".mypage.UserInfoUpdateActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".mypage.MyFeedActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".closet.ClosetDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.TradeDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".mypage.MyLikeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".dashboard.cody.CodyDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".saleFragment.chat.ChatActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".mypage.ChatUserListActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".dashboard.cody.CodySearchActivity" android:screenOrientation="portrait"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                tools:replace="android:resource"/>
+        </provider>
 
     </application>
 </manifest>

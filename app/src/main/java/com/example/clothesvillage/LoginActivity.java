@@ -1,84 +1,76 @@
 package com.example.clothesvillage;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.example.clothesvillage.base.BaseActivity;
+import com.example.clothesvillage.databinding.ActivityLoginBinding;
+import com.example.clothesvillage.remote.ClothesRepository;
+import com.example.clothesvillage.remote.request.LoginRequest;
+import com.example.clothesvillage.remote.request.SingleRequest;
+import com.example.clothesvillage.utils.MessageUtils;
+import com.example.clothesvillage.utils.PreferenceHelper;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class LoginActivity extends AppCompatActivity {
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+
+public class LoginActivity extends BaseActivity<ActivityLoginBinding> {
     private static final String TAG = "SignUpActivity";
     private FirebaseAuth mAuth;
+    private ClothesRepository clothesRepository;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+    protected int layoutRes() {
+        return R.layout.activity_login;
+    }
 
+    @Override
+    protected void onViewCreated() {
         mAuth = FirebaseAuth.getInstance();
+        clothesRepository = ClothesRepository.getInstance();
 
-        findViewById(R.id.btn_login).setOnClickListener(onClickListener);
-        findViewById(R.id.btn_goto_signup).setOnClickListener(onClickListener);
+        binding.btnLogin.setOnClickListener(view -> signup());
+        binding.btnGotoSignup.setOnClickListener(view -> startSignUpActivity());
+
+//        binding.editId.setText("c@naver.com");
+//        binding.editPass.setText("111111");
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-    }
-
-    View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btn_login:
-                    signup();
-                    break;
-                case R.id.btn_goto_signup:
-                    startSignUpActivity();
-                    break;
-            }
-        }
-    };
 
     private void signup() {
-        String email = ((EditText)findViewById(R.id.edit_email)).getText().toString();
-        String password = ((EditText)findViewById(R.id.edit_password)).getText().toString();
+        String email =   binding.editId.getText().toString();
+        String password = binding.editPass.getText().toString();
 
         if(email.length() > 0 && password.length() > 0) {
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                startToast("login success");
-                                startMainActivity();
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                if(task.getException() != null) {
-                                    startToast(task.getException().toString());
-                                }
-                            }
+            compositeDisposable.add(clothesRepository.login(new LoginRequest(email,password))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(response -> {
+                        L.i("::::response -> " + response);
+                        if(response.getResult().equalsIgnoreCase("Success")){
+                            getUserInfo();
+                        }else{
+                            MessageUtils.showLongToastMsg(getApplicationContext(), "로그인에 실패하였습니다.");
                         }
-                    });
+                    }, error -> {
+                        MessageUtils.showLongToastMsg(getApplicationContext(), "다시 시도해주세요.");
+                    }));
         } else {
             startToast("please enter again");
         }
+    }
 
+    private void getUserInfo(){
+        compositeDisposable.add(clothesRepository.getUserInfo(new SingleRequest(binding.editId.getText().toString()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    L.i("::::getUserInfo response -> " + response);
+                    PreferenceHelper.setCurrentUser(getApplicationContext(),response);
+                    PreferenceHelper.setLoginState(getApplicationContext(),true);
+                            startMainActivity();
+                            finish();
+                }, error -> {
+                    MessageUtils.showLongToastMsg(getApplicationContext(), "다시 시도해주세요.");
+                }));
     }
 
     private void startToast(String msg) {

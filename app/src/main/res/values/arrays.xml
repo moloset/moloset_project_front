@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="filter_trade" translatable="false">
+        <item>거래</item>
+        <item>대여</item>
+    </string-array>
+
+    <string-array name="filter_trade_update" translatable="false">
+        <item>거래</item>
+        <item>대여</item>
+        <item>거래완료</item>
+    </string-array>
+
+
+    <string-array name="filter_category" translatable="false">
+        <item>아우터</item>
+        <item>상의</item>
+        <item>하의</item>
+        <item>신발</item>
+        <item>가방</item>
+        <item>기타</item>
+    </string-array>
+</resources>

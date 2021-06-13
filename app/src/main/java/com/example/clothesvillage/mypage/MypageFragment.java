@@ -1,48 +1,67 @@
 package com.example.clothesvillage.mypage;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import com.example.clothesvillage.LoginActivity;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.clothesvillage.R;
-import com.example.clothesvillage.SignUpActivity;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.clothesvillage.base.BaseFragment;
+import com.example.clothesvillage.closet.ClosetFragment;
+import com.example.clothesvillage.closet.ClosetRegisterActivity;
+import com.example.clothesvillage.databinding.FragmentMypageBinding;
+import com.example.clothesvillage.remote.response.UserInfoResponse;
+import com.example.clothesvillage.utils.PreferenceHelper;
+import com.tedpark.tedonactivityresult.rx2.TedRxOnActivityResult;
 
-public class MypageFragment extends Fragment implements View.OnClickListener {
-    private View view;
+import static android.app.Activity.RESULT_OK;
 
-    @Nullable
+public class MypageFragment extends BaseFragment<FragmentMypageBinding> {
+
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_mypage, container, false);
-
-        Button button = view.findViewById(R.id.btn_logout);
-        button.setOnClickListener(this);
-
-        return view;
+    protected int layoutRes() {
+        return R.layout.fragment_mypage;
     }
 
-    public void onClick(View v) {
-        switch(v.getId()) {
-            case R.id.btn_logout:
-                FirebaseAuth.getInstance().signOut();
-                startSignUpActivity();
-                break;
+    @Override
+    protected void onViewCreated() {
+
+
+        binding.viewLike.setOnClickListener(v -> startActivity(new Intent(getActivity(), MyLikeActivity.class)));
+        binding.viewMyFeed.setOnClickListener(v -> startActivity(new Intent(getActivity(), MyFeedActivity.class)));
+        binding.viewMyTread.setOnClickListener(v -> startActivity(new Intent(getActivity(), MyTradeActivity.class)));
+        binding.viewChat.setOnClickListener(v -> startActivity(new Intent(getActivity(), ChatUserListActivity.class)));
+        binding.btnProfileUpdate.setOnClickListener(v -> TedRxOnActivityResult.with(getActivity())
+                .startActivityForResult(new Intent(MypageFragment.this.getActivity(), UserInfoUpdateActivity.class))
+                .subscribe(result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        setUserInformation();
+                    }
+                }, error -> {
+
+                }));
+
+
+        setUserInformation();
+
+    }
+
+    private void setUserInformation() {
+        UserInfoResponse currentUser = PreferenceHelper.getCurrentUser(getActivity());
+
+        if (currentUser != null) {
+            binding.tvUserName.setText(PreferenceHelper.getCurrentUser(getActivity()).getUser_name());
+            binding.tvUserEmail.setText(PreferenceHelper.getCurrentUser(getActivity()).getUser_email());
+
+            Glide.with(binding.ivProfile.getContext())
+                    .load("http://54.180.178.116:8080/" + currentUser.getUser_profile())
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(binding.ivProfile);
+
         }
     }
 
-    private void startSignUpActivity() {
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
-        startActivity(intent);
-    }
 
 }

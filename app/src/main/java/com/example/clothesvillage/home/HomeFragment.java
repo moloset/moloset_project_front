@@ -1,10 +1,19 @@
 package com.example.clothesvillage.home;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +22,42 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.VolleyError;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.clothesvillage.L;
 import com.example.clothesvillage.R;
+import com.example.clothesvillage.base.BaseFragment;
+import com.example.clothesvillage.databinding.FragmentHomeBinding;
+import com.example.clothesvillage.remote.request.ClothesListRequest;
+import com.example.clothesvillage.remote.request.WeatherRequest;
+import com.example.clothesvillage.remote.volley.LocationProvider;
+import com.example.clothesvillage.remote.volley.VolleyResult;
+import com.example.clothesvillage.remote.volley.VolleyService;
+import com.example.clothesvillage.utils.MessageUtils;
+import com.example.clothesvillage.utils.PreferenceHelper;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,259 +65,225 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
-public class HomeFragment extends Fragment {
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
-    private View view;
+public class HomeFragment extends BaseFragment<FragmentHomeBinding> {
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private SettingsClient settingsClient;
+    private LocationRequest locationRequest;
+    private LocationSettingsRequest locationSettingsRequest;
 
-    private ArrayList<WData> mDataset = new ArrayList<WData>();
-    private Context mContext;
-    //private WData data;
+    private Location location;
 
-    TextView weather_content_tv;
-    TextView weather_highlowtemp_tv;
-    TextView weather_temperature_tv;
-    TextView recommend_style_tv;
-    ImageView weather_picture;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_home, container, false);
-
-        weather_content_tv = (TextView)view.findViewById(R.id.textview_weather_content);
-        weather_highlowtemp_tv = (TextView)view.findViewById(R.id.textview_weather_highlowtemp);
-        weather_temperature_tv = (TextView)view.findViewById(R.id.textview_weather_temperature);
-        recommend_style_tv = (TextView) view.findViewById(R.id.textview_recomand_style);
-        weather_picture = (ImageView)view.findViewById(R.id.imageview_weather_picture);
-
-        return view;
+    protected int layoutRes() {
+        return R.layout.fragment_home;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        //mContext = context;
-        String URL = "https://search.naver.com/search.naver?where=nexearch&sm=top_sly.hst&fbm=0&acr=1&acq=%EC%98%A4%EB%8A%98%EB%82%A0&qdt=0&ie=utf8&query=오늘날씨";
-        WeatherAsynTask task = new WeatherAsynTask();
-        task.execute(URL);
-    }
-
-    private class WeatherAsynTask extends AsyncTask<String, Void, String> {
-
-        WData data = new WData();
-        String weather_state = "";
-        ProgressDialog progressDialog = new ProgressDialog(getActivity());
-
-        public WeatherAsynTask() {
-            //
-        }
-
-        @Override
-        protected void onPreExecute() {
-            //super.onPreExecute();
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setMessage("날씨를 로딩중입니다");
-            progressDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            String URL = params[0];
-            String E1 = "div[class=main_info]";
-
-            try {
-                Document document = Jsoup.connect(URL).get();
-                Elements elements = document.select(E1);
-
-                for(Element element : elements) {
-
-                    E1 = "p[class=cast_txt]";
-                    Elements e1 = document.select(E1);
-                    data.setContent(e1.get(0).text());
-
-                    E1 = "p[class=info_temperature]";
-                    Elements e2 = document.select(E1);
-                    data.setTemperature(e2.text().substring(0, 2) + "℃");
-                    recommend_style(Integer.parseInt(e2.text().substring(0, 2)));
-
-                    E1 = "span[class=merge]";
-                    Elements e3 = document.select(E1);
-                    data.setHigh_Low_temp(e3.text());
-
-                    E1 = "div[class=main_info] span";
-                    Elements e4 = document.select(E1);
-                    weather_state= e4.attr("class");
+    protected void onViewCreated() {
+        initFusedLocation();
+        binding.ivAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (location == null) {
+                    MessageUtils.showLongToastMsg(getActivity(), "위치정보를 알수없습니다.");
+                    return;
                 }
 
-            } catch (IOException e) {
-                e.printStackTrace();
+                Intent intent = new Intent(getActivity(), WeatherDetailActivity.class);
+                intent.putExtra("lat", String.valueOf(location.getLatitude()));
+                intent.putExtra("lon", String.valueOf(location.getLongitude()));
+                startActivity(intent);
             }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
-            weather_content_tv.setText(data.getContent());
-            weather_highlowtemp_tv.setText(data.getHigh_low_temp());
-            weather_temperature_tv.setText(data.getTemperature());
-            setWeather(weather_state);
-            progressDialog.dismiss();
-        }
-
-        public void setWeather(String w_state) {
-            switch(w_state) {
-                case "ico_state ws1": //맑음(낮)
-                    weather_picture.setImageResource(R.drawable.ws1);
-                    break;
-                case "ico_state ws2": //맑음(밤)
-                    weather_picture.setImageResource(R.drawable.ws2);
-                    break;
-                case "ico_state ws3": //구름조금(낮)
-                    weather_picture.setImageResource(R.drawable.ws3);
-                    break;
-                case "ico_state ws4": //구름조금(밤)
-                    weather_picture.setImageResource(R.drawable.ws4);
-                    break;
-                case "ico_state ws5": //구름많음(낮)
-                    weather_picture.setImageResource(R.drawable.ws5);
-                    break;
-                case "ico_state ws6": //구름많음(밤)
-                    weather_picture.setImageResource(R.drawable.ws6);
-                    break;
-                case "ico_state ws7": //흐림
-                    weather_picture.setImageResource(R.drawable.ws7);
-                    break;
-                case "ico_state ws8": //약한비
-                    weather_picture.setImageResource(R.drawable.ws8);
-                    break;
-                case "ico_state ws9": //비
-                    weather_picture.setImageResource(R.drawable.ws9);
-                    break;
-                case "ico_state ws10": //강한비
-                    weather_picture.setImageResource(R.drawable.ws10);
-                    break;
-                case "ico_state ws11": //약한눈
-                    weather_picture.setImageResource(R.drawable.ws11);
-                    break;
-                case "ico_state ws12": //눈
-                    weather_picture.setImageResource(R.drawable.ws12);
-                    break;
-                case "ico_state ws13": //강한눈
-                    weather_picture.setImageResource(R.drawable.ws13);
-                    break;
-                case "ico_state ws14": //진눈깨비
-                    weather_picture.setImageResource(R.drawable.ws14);
-                    break;
-                case "ico_state ws15": //소나기
-                    weather_picture.setImageResource(R.drawable.ws15);
-                    break;
-                case "ico_state ws16": //소낙눈
-                    weather_picture.setImageResource(R.drawable.ws16);
-                    break;
-                case "ico_state ws17": //안개
-                    weather_picture.setImageResource(R.drawable.ws17_40);
-                    break;
-                case "ico_state ws18": //번개, 뇌우
-                    weather_picture.setImageResource(R.drawable.ws18);
-                    break;
-                case "ico_state ws19": //우박
-                    weather_picture.setImageResource(R.drawable.ws19);
-                    break;
-                case "ico_state ws20": //황사
-                    weather_picture.setImageResource(R.drawable.ws20_41);
-                    break;
-                case "ico_state ws21": //비 또는 눈
-                    weather_picture.setImageResource(R.drawable.ws21);
-                    break;
-                case "ico_state ws22": //가끔비
-                    weather_picture.setImageResource(R.drawable.ws22_31);
-                    break;
-                case "ico_state ws23": //가끔눈
-                    weather_picture.setImageResource(R.drawable.ws23_32);
-                    break;
-                case "ico_state ws24": //가끔비 또는 눈
-                    weather_picture.setImageResource(R.drawable.ws24_33);
-                    break;
-                case "ico_state ws25": //흐린후갬
-                    weather_picture.setImageResource(R.drawable.ws25);
-                    break;
-                case "ico_state ws26": //뇌우후갬
-                    weather_picture.setImageResource(R.drawable.ws26);
-                    break;
-                case "ico_state ws27": //비후갬
-                    weather_picture.setImageResource(R.drawable.ws27);
-                    break;
-                case "ico_state ws28": //눈후갬
-                    weather_picture.setImageResource(R.drawable.ws28);
-                    break;
-                case "ico_state ws29": //흐려져비
-                    weather_picture.setImageResource(R.drawable.ws29);
-                    break;
-                case "ico_state ws30": //흐려져눈
-                    weather_picture.setImageResource(R.drawable.ws30);
-                    break;
-                case "ico_state ws31": //가끔비(밤)
-                    weather_picture.setImageResource(R.drawable.ws22_31);
-                    break;
-                case "ico_state ws32": //가끔눈(밤)
-                    weather_picture.setImageResource(R.drawable.ws23_32);
-                    break;
-                case "ico_state ws33": //가끔비 또는 눈(밤)
-                    weather_picture.setImageResource(R.drawable.ws24_33);
-                    break;
-                case "ico_state ws34": //흐린후갬(밤)
-                    weather_picture.setImageResource(R.drawable.ws34);
-                    break;
-                case "ico_state ws35": //뇌우후갬(밤)
-                    weather_picture.setImageResource(R.drawable.ws35);
-                    break;
-                case "ico_state ws36": //비후갬(밤)
-                    weather_picture.setImageResource(R.drawable.ws36);
-                    break;
-                case "ico_state ws37": //눈후갬(밤)
-                    weather_picture.setImageResource(R.drawable.ws37);
-                    break;
-                case "ico_state ws38": //흐려져비(밤)
-                    weather_picture.setImageResource(R.drawable.ws38);
-                    break;
-                case "ico_state ws39": //흐려져눈(밤)
-                    weather_picture.setImageResource(R.drawable.ws39);
-                    break;
-                case "ico_state ws40": //안개(밤)
-                    weather_picture.setImageResource(R.drawable.ws17_40);
-                    break;
-                case "ico_state ws41": //황사(밤)
-                    weather_picture.setImageResource(R.drawable.ws20_41);
-                    break;
-            }
-        }
-        public void recommend_style(int temperature) {
-            if(temperature < -5) {
-                recommend_style_tv.setText("두꺼운 코트, 롱패딩, 모자, 귀마개");
-            } else if(temperature < 9) {
-                recommend_style_tv.setText("가벼운 코트, 라이더 자켓");
-            } else if(temperature < 11) {
-                recommend_style_tv.setText("트렌치 코트, 면자켓");
-            } else if(temperature < 16) {
-                recommend_style_tv.setText("자켓, 셔츠, 가디건, 치마");
-            } else if(temperature < 19) {
-                recommend_style_tv.setText("니트, 가디건, 후드티, 맨투맨, 청바지, 면바지");
-            } else if(temperature < 22) {
-               recommend_style_tv.setText("긴팔, 가디건, 면바지, 슬랙스");
-            } else if(temperature < 26) {
-                recommend_style_tv.setText("반팔, 얇은 셔츠, 반바지");
-            } else {
-                recommend_style_tv.setText("민소매, 반바지, 원피스");
-            }
-        }
+        });
     }
+
+    private void initFusedLocation() {
+        showProgressDialog("날씨 데이터를 불러오는중 입니다.");
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        settingsClient = LocationServices.getSettingsClient(getActivity());
+        createLocationCallback();
+        createLocationRequest();
+        buildLocationSettingsRequest();
+        startLocationUpdates();
+
+    }
+
+    private void createLocationRequest() {
+        locationRequest = new LocationRequest();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder =
+                new LocationSettingsRequest.Builder();
+
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        L.e(">>>>task.isSuccessful() = " + task.isSuccessful());
+                    }
+                });
+    }
+
+
+    private void createLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                location = locationResult.getLastLocation();
+                L.e(">>>>>[GET] location = " + location);
+                try {
+                    getCurrentWeather(location);
+                    getCurrentAddress(location);
+                    stopLocationUpdates();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                hideProgressDialog();
+//                stopLocationUpdates();
+            }
+        };
+    }
+
+    private void startLocationUpdates() {
+        L.e(">>>>>>>>>>");
+        settingsClient.checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        // 권한 확인
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
+                                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        L.e(">>>>>>>>>>>>>>>>>>>>>>");
+                        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+                    }
+                })
+                .addOnFailureListener(getActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                L.e("LocationSettingsStatusCodes.RESOLUTION_REQUIRED");
+                                //위치 설정이 만족스럽지 않을 때 감지.
+                                // 그러나 사용자에게 대화상자를  보여줌으로써 고칠 수있습니다.
+                                ResolvableApiException rae = (ResolvableApiException) e;
+                                try {
+                                    rae.startResolutionForResult(getActivity(), 10000);
+                                } catch (IntentSender.SendIntentException ex) {
+                                    ex.printStackTrace();
+                                }
+                                break;
+
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be " +
+                                        "fixed here. Fix in Settings.";
+                                L.e("errorMessage = " + errorMessage);
+                        }
+                    }
+                });
+    }
+
+    private void getCurrentWeather(Location location) {
+        compositeDisposable.add(repository.currentWeather(new WeatherRequest(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude())))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate(this::hideProgressDialog)
+                .subscribe(response -> {
+                    L.i("::::response " + response);
+                    recommend_style(Integer.parseInt(response.getTemp()));
+                    binding.textviewWeatherTemperature.setText(response.getTemp() + "℃");
+                    binding.textviewWeatherHighlowtemp.setText(response.getMinTemp() + "℃" + "/" + response.getMaxTemp() + "℃");
+                    Glide.with(this)
+                            .load(response.getIcon())
+                            .placeholder(0)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into(binding.imageviewWeatherPicture);
+                }, throwable -> {
+                    L.e(">>>>>>>>>>>>>>>>" + throwable.getMessage());
+                }));
+    }
+
+    private void getCurrentAddress(Location location) {
+        VolleyService volleyService = new VolleyService(new VolleyResult() {
+            @Override
+            public void notifySuccess(String type, JSONObject response) {
+                try {
+                    JSONArray ja = response.getJSONArray("documents");
+                    if (ja.length() > 0) {
+                        String address_name = "";
+                        for (int i = 0; i < ja.length(); i++) {
+                            JSONObject wtmJson = ja.getJSONObject(i);
+                            if (wtmJson.has("address")) {
+                                JSONObject address = wtmJson.getJSONObject("address");
+                                address_name = address.getString("address_name");
+                                L.e(":::address_name : " + address_name);
+
+                            }
+                        }
+
+                        if (!address_name.equalsIgnoreCase("")) {
+                            L.e(":::::::::::address " + address_name);
+                            binding.tvAddress.setText(address_name);
+                        }
+
+                    }
+                } catch (JSONException e) {
+
+                }
+            }
+
+            @Override
+            public void notifyError(VolleyError error) {
+
+            }
+        }, getActivity());
+        volleyService.getGeoWTM(location);
+    }
+
+        public void recommend_style(int temperature) {
+            if (temperature < -5) {
+                binding.textviewRecomandStyle.setText("두꺼운 코트, 롱패딩, 모자, 귀마개");
+            } else if (temperature < 9) {
+                binding.textviewRecomandStyle.setText("가벼운 코트, 라이더 자켓");
+            } else if (temperature < 11) {
+                binding.textviewRecomandStyle.setText("트렌치 코트, 면자켓");
+            } else if (temperature < 16) {
+                binding.textviewRecomandStyle.setText("자켓, 셔츠, 가디건, 치마");
+            } else if (temperature < 19) {
+                binding.textviewRecomandStyle.setText("니트, 가디건, 후드티, 맨투맨, 청바지, 면바지");
+            } else if (temperature < 22) {
+                binding.textviewRecomandStyle.setText("긴팔, 가디건, 면바지, 슬랙스");
+            } else if (temperature < 26) {
+                binding.textviewRecomandStyle.setText("반팔, 얇은 셔츠, 반바지");
+            } else {
+                binding.textviewRecomandStyle.setText("민소매, 반바지, 원피스");
+            }
+        }
 }

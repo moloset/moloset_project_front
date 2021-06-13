@@ -1,193 +1,225 @@
 package com.example.clothesvillage;
 
-import android.app.AlertDialog;
+
 import android.app.DatePickerDialog;
-import android.content.Intent;
-import android.os.Bundle;
+import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.clothesvillage.home.WData;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.clothesvillage.base.BaseActivity;
+import com.example.clothesvillage.databinding.ActivitySignUpBinding;
+import com.example.clothesvillage.remote.ClothesRepository;
+import com.example.clothesvillage.remote.request.InsertUser;
+import com.example.clothesvillage.remote.request.SingleRequest;
+import com.example.clothesvillage.utils.DateUtils;
+import com.example.clothesvillage.utils.MessageUtils;
 
 import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class SignUpActivity extends AppCompatActivity {
-    private static final String TAG = "SignUpActivity";
-    private FirebaseAuth mAuth;
-    private DatePickerDialog datePickerDialog;
-    private Button btn_birth;
-    //private User data;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
-    RadioGroup radioGroup;
-    RadioButton radiobtn_woman;
-    RadioButton radiobtn_man;
+public class SignUpActivity extends BaseActivity<ActivitySignUpBinding> {
+
+    private String selectedGender = "남";
+    private String selectedBirth = "";
+    private boolean isEmailCheck = false;
+    private boolean isNickNameCheck = false;
+    private ClothesRepository clothesRepository;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
-
-        mAuth = FirebaseAuth.getInstance();
-
-        findViewById(R.id.btn_signup).setOnClickListener(onClickListener);
-        findViewById(R.id.btn_goto_login).setOnClickListener(onClickListener);
-        btn_birth = findViewById(R.id.btn_birth);
-
-        //radio button set
-        radiobtn_woman = (RadioButton)findViewById(R.id.radio_woman);
-        radiobtn_man = (RadioButton)findViewById(R.id.radio_man);
-
-        //radio group set
-        radioGroup = findViewById(R.id.radio_group);
-        radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
-
-        initDatePicker();;
-        btn_birth.setText(getTodaysDate());
+    protected int layoutRes() {
+        return R.layout.activity_sign_up;
     }
 
-    //user
     @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-    }
+    protected void onViewCreated() {
+        clothesRepository = ClothesRepository.getInstance();
 
-    //button click listener
-    View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btn_login:
-                    signup();
-                    break;
-                case R.id.btn_goto_signup:
-                    startLoginActivity();
-                    break;
-                case R.id.btn_namecheck:
-                    UsernameCheck();
-                    break;
-                case R.id.btn_goto_login:
-                    startLoginActivity();
-                    break;
-            }
-        }
-    };
+        binding.ivBack.setOnClickListener(view -> finish());
+        binding.btnNamecheck.setOnClickListener(view -> checkEmail());
+        binding.btnNickcheck.setOnClickListener(view -> checkNickName());
+        binding.tvComplte.setOnClickListener(view -> insertUser());
 
-    private void signup() {
-        String email = ((EditText)findViewById(R.id.edit_email)).getText().toString();
-        String password = ((EditText)findViewById(R.id.edit_password)).getText().toString();
-        String passwordCheck = ((EditText)findViewById(R.id.edit_password_check)).getText().toString();
+        binding.btnBirth.setOnClickListener(view -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog dialog = new DatePickerDialog(SignUpActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(Calendar.YEAR, year);
+                    selectedCalendar.set(Calendar.MONTH, monthOfYear);
+                    selectedCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    selectedBirth = DateUtils.getDate(selectedCalendar.getTimeInMillis());
+                    binding.btnBirth.setText(selectedBirth);
+                }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
-        //email, password check
-        if(email.length() > 0 && password.length() > 0 && passwordCheck.length() > 0) {
-            if(password.equals(passwordCheck)) {
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) { //success ui logic
-                                    // Sign in success, update UI with the signed-in user's information
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    startToast("sign up success");
-                                } else {//failed ui logic
-                                    // If sign in fails, display a message to the user.
-                                    if(task.getException() != null) {
-                                        startToast(task.getException().toString());
-                                    }
-                                }
-                            }
-                        });
-            }else {
-                Toast.makeText(this, "password do not match", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            startToast("please enter again");
-        }
+            dialog.getDatePicker().setCalendarViewShown(false);
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        });
 
-    }
-
-    private void startToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    private void startLoginActivity() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-    }
-
-    private String getTodaysDate() {
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        month = month + 1;
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        return makeDateString(day, month, year);
-    }
-
-    //init DatePicker
-    private void initDatePicker() {
-        User data = new User();
-
-        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+        binding.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                month = month + 1;
-                String date = makeDateString(day, month, year);
-                btn_birth.setText(date);
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.radio_man:
+                        selectedGender = "남";
+                        break;
+                    case R.id.radio_woman:
+                        selectedGender = "여";
+                        break;
+                }
             }
-        };
-
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        int style = AlertDialog.THEME_HOLO_LIGHT;
-
-        //User data set
-        data.setUser_birth_year(year);
-        data.setUser_birth_month(month);
-        data.setUser_birth_day(day);
-
-        datePickerDialog = new DatePickerDialog(this, style, dateSetListener, year, month, day);
+        });
     }
 
-    private String makeDateString(int day, int month, int year) {
-        return year + "년 " + month + "월 " + day + "일";
-    }
 
-    //show datepicker
-    public void openDatePicker(View view) {
-        datePickerDialog.show();
-    }
+    private void insertUser() {
 
-    //radiogroup listener
-    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
-        User data = new User();
-        @Override
-        public void onCheckedChanged(RadioGroup group, int i) {
-            if(i == R.id.radio_woman) {
-                data.setUser_gender("여자");
-            } else if(i == R.id.radio_man) {
-                data.setUser_gender("남자");
-            }
+        L.i(":::::insertUser");
+
+        if (isEmtpy(binding.editId)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "이메일을 입력해주세요.");
+            return;
         }
-    };
-    public void UsernameCheck(){
-        //
+
+        if (isEmtpy(binding.editPassword) || isEmtpy(binding.editPasswordConfirm)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "비밀번호를 입력해주세요.");
+            return;
+        }
+
+        if (isEmtpy(binding.editNickname)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "닉네임 입력해주세요.");
+            return;
+        }
+
+        if (isEmtpy(binding.editHeight)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "키를 입력해주세요.");
+            return;
+        }
+
+        if (isEmtpy(binding.editWeight)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "몸무게를 입력해주세요.");
+            return;
+        }
+
+        if (!binding.editPassword.getText().toString().equalsIgnoreCase(binding.editPasswordConfirm.getText().toString())) {
+            binding.tvErrorPassword.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        if (!isEmailCheck) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "이메일 중복체크를 해주세요.");
+            return;
+        }
+
+        if (!isNickNameCheck) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "닉네임 중복체크를 해주세요.");
+            return;
+        }
+
+        String email = binding.editId.getText().toString();
+        String password = binding.editPassword.getText().toString();
+        String name = binding.editNickname.getText().toString();
+        String gender = selectedGender;
+        String birth = selectedBirth;
+        String height = binding.editHeight.getText().toString();
+        String weight = binding.editWeight.getText().toString();
+        String location = "";
+        InsertUser insertUser = new InsertUser(email,password,name,gender,birth,height,weight,location);
+
+
+        compositeDisposable.add(clothesRepository.userInsert(insertUser)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    L.i("::::response -> " + response);
+                    MessageUtils.showLongToastMsg(getApplicationContext(), "회원가입에 성공하였습니다.");
+                    finish();
+                }, error -> {
+                    MessageUtils.showLongToastMsg(getApplicationContext(), "다시 시도해주세요.");
+                }));
+
+    }
+
+    private void checkEmail() {
+        if (isEmtpy(binding.editId)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "이메일을 입력해주세요.");
+            return;
+        }
+
+        if(!isEmailFormat(binding.editId.getText().toString())){
+            MessageUtils.showLongToastMsg(getApplicationContext(), "이메일 양식을 지켜주세요.");
+            return;
+        }
+        if (isEmailCheck) {
+            return;
+        }
+        compositeDisposable.add(clothesRepository.checkEmail(new SingleRequest(binding.editId.getText().toString()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    L.i("::::response -> " + response);
+                    if (response.getResult().equalsIgnoreCase("Success")) {
+                        //중복없음
+                        binding.editId.setEnabled(false);
+                        binding.editId.setTextColor(Color.parseColor("#ababab"));
+                        isEmailCheck = true;
+                    } else {
+                        binding.tvErrorEmail.setVisibility(View.VISIBLE);
+                        isEmailCheck = false;
+                    }
+                }, error -> {
+                    isEmailCheck = false;
+                    MessageUtils.showLongToastMsg(getApplicationContext(), "다시 시도해주세요.");
+                }));
+    }
+
+
+    private void checkNickName() {
+        if (isEmtpy(binding.editNickname)) {
+            MessageUtils.showLongToastMsg(getApplicationContext(), "닉네임 입력해주세요.");
+            return;
+        }
+        if (isNickNameCheck) {
+            return;
+        }
+
+        compositeDisposable.add(clothesRepository.checkName(new SingleRequest(binding.editNickname.getText().toString()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    L.i("::::response -> " + response);
+                    if (response.getResult().equalsIgnoreCase("Success")) {
+                        //중복없음
+                        binding.editNickname.setEnabled(false);
+                        binding.editNickname.setTextColor(Color.parseColor("#ababab"));
+                        isNickNameCheck = true;
+                    } else {
+                        binding.tvErrorNick.setVisibility(View.VISIBLE);
+                        isNickNameCheck = false;
+                    }
+                }, error -> {
+                    isNickNameCheck = false;
+                    MessageUtils.showLongToastMsg(getApplicationContext(), "다시 시도해주세요.");
+                }));
+    }
+
+    private boolean isEmtpy(EditText editText) {
+        return TextUtils.isEmpty(editText.getText()) || editText.getText().toString().equalsIgnoreCase("");
+    }
+
+    private boolean isEmailFormat(String email){
+        boolean returnValue = false;
+        String regex = "^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(email);
+        if(m.matches()){
+            returnValue = true;
+        }
+        return returnValue;
     }
 }

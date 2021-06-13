@@ -6,19 +6,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.clothesvillage.dashboard.DashboardFragment;
 import com.example.clothesvillage.home.HomeFragment;
 import com.example.clothesvillage.mypage.MypageFragment;
-import com.example.clothesvillage.notifications.NotificationsFragment;
+import com.example.clothesvillage.closet.ClosetFragment;
 import com.example.clothesvillage.saleFragment.SaleFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private DashboardFragment dashboardFragment;
     private HomeFragment homeFragment;
     private MypageFragment mypageFragment;
-    private NotificationsFragment notificationsFragment;
+    private ClosetFragment closetFragment;
     private SaleFragment saleFragment;
 
     @Override
@@ -36,31 +32,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(user == null){
-            startLoginActivity();
-        } else {
-            if (user != null) {
-                for (UserInfo profile : user.getProviderData()) {
-                    // Id of the provider (ex: google.com)
-                    String providerId = profile.getProviderId();
-
-                    // UID specific to the provider
-                    String uid = profile.getUid();
-
-                    // Name, email address, and profile photo Url
-                    String name = profile.getDisplayName();
-                    String email = profile.getEmail();
-                    Uri photoUrl = profile.getPhotoUrl();
-                }
-            }
-        }
         bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()) {
+                switch (item.getItemId()) {
                     case R.id.navigation_home:
                         setFrag(0);
                         break;
@@ -84,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         dashboardFragment = new DashboardFragment();
         homeFragment = new HomeFragment();
         mypageFragment = new MypageFragment();
-        notificationsFragment = new NotificationsFragment();
+        closetFragment = new ClosetFragment();
         saleFragment = new SaleFragment();
 
         setFrag(0); //first display
@@ -100,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
 
+
         switch (n) {
             case 0:
                 ft.replace(R.id.main_frame, homeFragment);
@@ -110,10 +88,9 @@ public class MainActivity extends AppCompatActivity {
                 ft.commit();
                 break;
             case 2:
-                ft.replace(R.id.main_frame, notificationsFragment);
+                ft.replace(R.id.main_frame, closetFragment);
                 ft.commit();
                 break;
-
             case 3:
                 ft.replace(R.id.main_frame, saleFragment);
                 ft.commit();
